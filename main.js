@@ -1,4 +1,4 @@
-import { Bodies, Body, Engine, Events, Render, Runner, World } from "matter-js";
+import { Bodies, Body, Engine, Events, Render, Runner, World, Mouse,MouseConstraint,Composite } from "matter-js";
 import {FRUITS_BASE} from "./fruits"
 
 // 엔진 시작
@@ -37,8 +37,20 @@ const topLine = Bodies.rectangle(310,100,640,2,{
   render:{fillStyle:"#E6B143"}
 });
 
-World.add(world, [leftWall,rightWall,ground,topLine])
+    // add mouse control
+    var mouse = Mouse.create(render.canvas),
+    mouseConstraint = MouseConstraint.create(engine, {
+        mouse: mouse,
+        constraint: {
+            stiffness: 0.2,
+            render: {
+                visible: false
+            }
+        }
+    });
+    // keep the mouse in sync with rendering
 
+World.add(world, [leftWall,rightWall,ground,topLine,mouseConstraint])
 Render.run(render);
 Runner.run(engine);
 
@@ -46,14 +58,12 @@ let currentBody = null;
 let currentFruit = null;
 let mouseMove = false;
 
-function addFruit(){
+function  addFruit(){
 
   const index = Math.floor(Math.random() * 4);
   const fruit = FRUITS_BASE[index];
   const body = Bodies.circle(300, 50, fruit.radius, {
     index : index,
-    // density :1,
-    // slop:1,
     isSleeping:true,
     render: {
       // sprite : {texture : `${fruit.name}.png`}
@@ -65,32 +75,50 @@ function addFruit(){
   currentFruit = fruit;
 
   World.add(world, body);
-
-}
-
-
-document.body.onmousedown = (e) =>{
   mouseMove = true;
-  currentBody.position = {x:e.offsetX, y:50}
+
 }
 
-document.body.onmouseup = (e) =>{
+// setTimeout(()=>{
+//   console.log(currentBody)
+//   addFruit();
+// },5000)
 
-  currentBody.isSleeping = false;
-  mouseMove = false;
 
-  // setTimeout(()=>{
-    addFruit();
-  // }, 500)
-}
+// render.canvas.onmousedown = (event) =>{
 
-document.body.onmousemove = (e) =>{
-  
-  if(mouseMove){
-    var x = e.offsetX > 600 ? 600 : e.offsetX;
-    currentBody.position = {x:x, y:50}
-  }
-}
+//   if(mouseMove){
+//     currentBody.isSleeping = false;
+//   }
+// }
+// const wait = (timeToDelay) => new Promise((resolve) => setTimeout(resolve, timeToDelay))
+
+// render.canvas.onmouseup = async (event) =>{
+
+//   mouseMove = false;
+//   if(!mouseMove){
+//     await wait(1000);   
+//     addFruit();
+//   }
+
+
+// }
+
+Events.on(mouseConstraint, "mousedown", (event) => {
+  console.log(event.mouse)
+  console.log(currentBody)
+  const {x } = event.mouse.mouseupPosition;
+  currentBody.position = {x:x,y:50}
+})
+
+Events.on(mouseConstraint, "mouseup", (event) => {
+  // addFruit();
+})
+
+// render.canvas.onmousemove = (event) =>{
+//   currentBody.position = {x:event.offsetX, y:50}
+// }
+
 
 addFruit();
 
