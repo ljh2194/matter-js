@@ -1,4 +1,4 @@
-import { Bodies, Body, Engine, Events, Render, Runner, World } from "matter-js";
+import { Bodies, Body, Engine, Events, Render, Runner, World, MouseConstraint, Mouse, Composite,Detector } from "matter-js";
 import {FRUITS_BASE} from "./fruits"
 
 // 엔진 시작
@@ -37,8 +37,26 @@ const topLine = Bodies.rectangle(310,100,640,2,{
   render:{fillStyle:"#E6B143"}
 });
 
-World.add(world, [leftWall,rightWall,ground,topLine])
 
+var mouse = Mouse.create(render.canvas),
+mouseConstraint = MouseConstraint.create(engine, {
+    mouse: mouse,
+    constraint: {
+        stiffness: 0.2,
+        render: {
+            visible: false
+        }
+    }
+});
+
+
+// 충돌감지
+// const collisions = Detector.collisions(world)
+
+Composite.add(world, [leftWall,rightWall,ground,topLine, mouseConstraint])
+render.mouse = mouse;
+
+console.log(render.mouse)
 Render.run(render);
 Runner.run(engine);
 
@@ -69,28 +87,33 @@ function addFruit(){
 }
 
 
-document.body.onmousedown = (e) =>{
-  mouseMove = true;
-  currentBody.position = {x:e.offsetX, y:50}
-}
 
-document.body.onmouseup = (e) =>{
+// document.body.onmousedown = (e) =>{
+//   mouseMove = true;
+//   currentBody.position = {x:e.offsetX, y:50}
+//   console.log(currentBody)
+// }
 
-  currentBody.isSleeping = false;
-  mouseMove = false;
+// document.body.onmouseup = (e) =>{
 
-  // setTimeout(()=>{
-    addFruit();
-  // }, 500)
-}
+//   currentBody.isSleeping = false;
+//   currentBody.positionImpulse = {x:0, y:0}
+//   console.log(currentBody)
 
-document.body.onmousemove = (e) =>{
+//   // setTimeout(()=>{
+//     addFruit();
+//   // }, 500)
+//   mouseMove = false;
+
+// }
+
+// document.body.onmousemove = (e) =>{
   
-  if(mouseMove){
-    var x = e.offsetX > 600 ? 600 : e.offsetX;
-    currentBody.position = {x:x, y:50}
-  }
-}
+//   if(mouseMove){
+//     var x = e.offsetX > 600 ? 600 : e.offsetX;
+//     currentBody.position = {x:x, y:50}
+//   }
+// }
 
 addFruit();
 
