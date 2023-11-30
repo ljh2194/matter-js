@@ -58,6 +58,7 @@ Runner.run(engine);
 let currentBody = null;
 let currentFruit = null;
 let mouseMove = false;
+let last = 0;
 
 function  addFruit(){
 
@@ -69,7 +70,7 @@ function  addFruit(){
     render: {
       sprite : {texture : `${fruit.name}.png`}
     },    
-    restitution : 0.1 // 탄성
+    restitution : 0.2 // 탄성
   })
 
   currentBody = body;
@@ -81,43 +82,33 @@ function  addFruit(){
 Events.on(mouseConstraint, "mousedown", (event) => {
   
   mouseMove = true;
-  currentBody.isSleeping = false;
-  currentBody.isStatic = true;
-
-  setPosition();
-})
-
-Events.on(mouseConstraint, "mouseup", (event) => {
-
-  mouseMove = false;
-  currentBody.isStatic = false;
-
-  addFruit();
+  console.log(currentBody)
 
 })
 
 Events.on(mouseConstraint, "mousemove", (event) => {
-  if(mouseMove) setPosition()
+
+  if(mouseMove){
+    const {x , y} = render.mouse.position
+    currentBody.position = {x:x,y:50}
+  }
+
 });
 
-function setPosition(){
+Events.on(mouseConstraint, "mouseup", (event) => {
 
-  // 30 끝 590 시작
-  let {x , y} = render.mouse.position
-  var radius = currentBody.circleRadius;
-  if( x > 590 - radius) x = 590 - radius;
-  if(x < 30 + radius) x = 30+radius;
+  // currentBody.isSleeping = true;
+  // addFruit();
+  console.log(currentBody)
 
-  Body.setPosition(currentBody, {x:x, y:50}, false)
-}
+  mouseMove = false;
 
-
+      // addFruit();
+})
 
 // 충돌 이벤트
 Events.on(engine,'collisionStart', (event) => {
   event.pairs.forEach((collision) => { 
-
-    // console.log(collision)
     
     if(collision.bodyA.index === collision.bodyB.index){
       const index = collision.bodyA.index;
@@ -126,9 +117,7 @@ Events.on(engine,'collisionStart', (event) => {
         return;
       }
      
-      setTimeout(()=>{
-       World.remove(world, [collision.bodyA, collision.bodyB]);
-      },10)
+      World.remove(world, [collision.bodyA, collision.bodyB]);
 
       const newFruit = FRUITS[index + 1];
 

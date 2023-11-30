@@ -1,4 +1,4 @@
-const FRUITS_BASE = [
+const FRUITS = [
     {
       name: "base/00_cherry",
       radius: 33 / 2,
@@ -45,4 +45,4 @@ const FRUITS_BASE = [
     },
   ];
   
-  export { FRUITS_BASE };
+  export { FRUITS };
